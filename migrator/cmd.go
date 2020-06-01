@@ -2,12 +2,12 @@ package migrator
 
 import (
 	"fmt"
-	"k8s.io/apimachinery/pkg/api/resource"
 
 	"github.com/giantswarm/microerror"
 	batchapiv1 "k8s.io/api/batch/v1"
 	apiv1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/etcd-cluster-migrator/pkg/project"

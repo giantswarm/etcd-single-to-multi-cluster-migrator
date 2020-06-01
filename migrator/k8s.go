@@ -1,11 +1,12 @@
 package migrator
 
 import (
+	"sort"
+
 	"github.com/giantswarm/microerror"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"sort"
 )
 
 const (
