@@ -12,10 +12,14 @@ import (
 )
 
 type Flag struct {
-	EtcdCaFile       string
-	EtcdCertFile     string
-	EtcdKeyFile      string
-	MasterNodesLabel string
+	BaseDomain        string
+	DockerRegistry    string
+	EtcdCaFile        string
+	EtcdCertFile      string
+	EtcdEndpoint      string
+	EtcdKeyFile       string
+	EtcdStartingIndex int
+	MasterNodesLabel  string
 }
 
 func main() {
@@ -29,11 +33,14 @@ func mainError() error {
 	var err error
 
 	var f Flag
+	flag.StringVar(&f.BaseDomain, "base-domain", "abcde.k8s.ginger.eu-west-1.aws.gigantic.io", "Base domain that is used for the etcd DNS address.")
+	flag.StringVar(&f.DockerRegistry, "docker-registry", "quay.io", "Docker registry for the run command container.")
 	flag.StringVar(&f.EtcdCaFile, "etcd-ca-file", "/etc/kubernetes/ssl/etcd/etcd-ca.pem", "Filepath to the etcd CA file.")
-	flag.StringVar(&f.EtcdCaFile, "etcd-ca-file", "/etc/kubernetes/ssl/etcd/etcd-ca.pem", "Filepath to the etcd CA file.")
-	flag.StringVar(&f.EtcdCaFile, "etcd-ca-file", "/etc/kubernetes/ssl/etcd/etcd-ca.pem", "Filepath to the etcd CA file.")
-
-	flag.StringVar(&f.MasterNodesLabel, "eni-tag-value", "test", "Tag value that will be used to found the requested ENI in AWS API, this tag should identify one unique ENI.")
+	flag.StringVar(&f.EtcdCertFile, "etcd-crt-file", "/etc/kubernetes/ssl/etcd/etcd-crt.pem", "Filepath to the etcd certificate file.")
+	flag.StringVar(&f.EtcdEndpoint, "etcd-endpoint", "https://127.0.0.1:2379", "Etcd endpoint for connection to the etcd server.")
+	flag.StringVar(&f.EtcdKeyFile, "etcd-key-file", "/etc/kubernetes/ssl/etcd/etcd-key.pem", "Filepath to the etcd private key file.")
+	flag.IntVar(&f.EtcdStartingIndex, "etcd-starting-index", 1, "Starting index for the etcd DNS address.")
+	flag.StringVar(&f.MasterNodesLabel, "master-node-label", "role=master", "Label selector to match against all master nodes.")
 
 	if len(os.Args) > 1 && os.Args[1] == "version" {
 		fmt.Printf("%s:%s - %s", project.Name(), project.Version(), project.GitSHA())
@@ -45,11 +52,17 @@ func mainError() error {
 	}
 	flag.Parse()
 
-	var m migrator.Migrator
+	var m *migrator.Migrator
 	{
-		c := migrator.MigratorConfig{}
+		c := migrator.MigratorConfig{
+			EtcdCaFile:      f.EtcdCaFile,
+			EtcdCertFile:    f.EtcdCertFile,
+			EtcdEndpoint:    f.EtcdEndpoint,
+			EtcdKeyFile:     f.EtcdKeyFile,
+			MasterNodeLabel: f.MasterNodesLabel,
+		}
 
-		m, err := migrator.NewMigrator(c)
+		m, err = migrator.NewMigrator(c)
 		if err != nil {
 			return microerror.Mask(err)
 		}

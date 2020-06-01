@@ -2,8 +2,14 @@ package migrator
 
 import (
 	"github.com/giantswarm/microerror"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"sort"
+)
+
+const (
+	labelMasterID = "masterID"
 )
 
 func createK8SClient() (kubernetes.Interface, error) {
@@ -19,4 +25,18 @@ func createK8SClient() (kubernetes.Interface, error) {
 	}
 
 	return clientset, nil
+}
+
+func getNodeNames(nodes []v1.Node) []string {
+	list := []string{
+		nodes[0].Name,
+		nodes[1].Name,
+		nodes[2].Name,
+	}
+	// sort nodes by masterID
+	sort.Slice(list, func(i int, j int) bool {
+		return nodes[i].Labels[labelMasterID] < nodes[j].Labels[labelMasterID]
+	})
+
+	return list
 }

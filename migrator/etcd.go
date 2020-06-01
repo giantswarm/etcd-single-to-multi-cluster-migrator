@@ -2,10 +2,11 @@ package migrator
 
 import (
 	"crypto/tls"
-	"github.com/giantswarm/microerror"
+	"fmt"
 	"time"
 
 	"github.com/coreos/etcd/clientv3"
+	"github.com/giantswarm/microerror"
 )
 
 const (
@@ -42,4 +43,18 @@ func createEtcdClient(caFile string, certFile string, keyFile string, endpoint s
 	}
 
 	return client, nil
+}
+
+func etcdPeerName(index int, baseDomain string) string {
+	return fmt.Sprintf("https://etcd%d.%s:2380", index, baseDomain)
+}
+
+func initialCluster(startingIndex int, baseDomain string, nodesCount int) string {
+	r := fmt.Sprintf("etcd%d=https://etcd%d.%s:2380", startingIndex, startingIndex, baseDomain)
+
+	for i := 1; i < nodesCount; i++ {
+		r += fmt.Sprintf(",etcd%d=https://etcd%d.%s:2380", startingIndex+i, startingIndex+i, baseDomain)
+	}
+
+	return r
 }
