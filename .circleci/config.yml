@@ -38,3 +38,15 @@ workflows:
             # Trigger the job also on git tag.
             tags:
               only: /^v.*/
+     - architect/push-to-app-catalog:
+          name: "package and push etcd-cluster-migrator chart"
+          app_catalog: "giantswarm-playground-catalog"
+          app_catalog_test: "giantswarm-playground-test-catalog"
+          chart: "etcd-cluster-migrator"
+          requires:
+            - push-etcd-cluster-migrator-to-quay
+          # Trigger job on git tag.
+          filters:
+            # Trigger the job also on git tag.
+            tags:
+              only: /^v.*/
