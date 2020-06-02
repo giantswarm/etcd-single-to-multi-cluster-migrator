@@ -25,5 +25,3 @@ image:
 global:
   image:
     registry: quay.io
-
-
