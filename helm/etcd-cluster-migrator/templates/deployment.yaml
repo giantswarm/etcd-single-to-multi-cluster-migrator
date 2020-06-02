@@ -30,17 +30,21 @@ spec:
       priorityClassName: system-cluster-critical
       hostNetwork: true
       containers:
-        - name: {{ .Values.name }}
-          image: "{{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
-          args:
-          {{- if index .Values.configmap "base-domain" }}
-          - --base-domain={{ index .Values.configmap "baseDomain" }}
-          {{- else }}
-          - --base-domain={{ .Values.app.baseDomain }}
-          {{- end }}
-          - --docker-registry={{ .Values.image.registry }}
-          securityContext:
-            runAsUser: {{ .Values.app.userID }}
-            runAsGroup: {{ .Values.app.groupID }}
-          resources:
-            {{ toYaml .Values.app.resources | indent 12 }}
+      - name: {{ .Values.name }}
+        image: "{{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
+        args:
+        {{- if index .Values.configmap "base-domain" }}
+        - --base-domain={{ index .Values.configmap "baseDomain" }}
+        {{- else }}
+        - --base-domain={{ .Values.app.baseDomain }}
+        {{- end }}
+        - --docker-registry={{ .Values.image.registry }}
+        securityContext:
+          runAsUser: {{ .Values.app.userID }}
+          runAsGroup: {{ .Values.app.groupID }}
+        resources:
+          limits:
+            memory: {{ .Values.app.resources.limits.memory }}
+          requests:
+            cpu: {{ .Values.app.resources.requests.cpu }}
+            memory: {{ .Values.app.resources.requests.memory }}
