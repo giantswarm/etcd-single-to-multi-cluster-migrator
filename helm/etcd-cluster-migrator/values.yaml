@@ -4,6 +4,9 @@
 
 name: etcd-cluster-migrator
 
+configmap:
+  baseDomain: "t001x.k8s.codename.region.provider.gigantic.io"
+
 app:
   baseDomain: "t001x.k8s.codename.region.provider.gigantic.io"
 

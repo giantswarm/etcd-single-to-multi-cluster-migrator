@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	labelMasterID = "masterID"
+	labelMasterID = "giantswarm.io/master-id"
 )
 
 func createK8SClient() (kubernetes.Interface, error) {
