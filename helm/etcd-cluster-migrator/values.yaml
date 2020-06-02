@@ -10,8 +10,8 @@ configmap:
 app:
   baseDomain: "t001x.k8s.codename.region.provider.gigantic.io"
 
-  userID: 10001
-  groupID: 10001
+  userID: 0
+  groupID: 0
 
   resources:
     limits:
