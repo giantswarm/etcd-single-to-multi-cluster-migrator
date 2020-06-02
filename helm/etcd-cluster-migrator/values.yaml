@@ -25,4 +25,3 @@ image:
   tag: "[[ .Version ]]"
   pullPolicy: IfNotPresent
   registry: quay.io
-
