@@ -34,9 +34,9 @@ spec:
           image: "{{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
           args:
             {{- if index .Values.configmap "base-domain" }}
-            - --base-domain={{ .Values.configmap "base-domain" }}
+            - --base-domain={{ .Values.configmap "baseDomain" }}
             {{- else }}
-            - --base-domain={{ .Values.app.basedomain }}
+            - --base-domain={{ .Values.app.baseDomain }}
             {{- end }}
             - --docker-registry={{ .Values.image.registry }}
             runAsUser: {{ .Values.app.userID }}
