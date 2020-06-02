@@ -15,10 +15,10 @@ app:
 
   resources:
     limits:
-      memory: 50Mi
+      memory: 100Mi
     requests:
-      cpu: 50m
-      memory: 50Mi
+      cpu: 75m
+      memory: 100Mi
 
 image:
   name: giantswarm/etcd-cluster-migrator

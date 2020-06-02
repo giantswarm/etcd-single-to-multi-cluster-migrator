@@ -102,11 +102,14 @@ func (m *Migrator) Run() error {
 		time.Sleep(masterNodeFetchInterval)
 	}
 
+	fmt.Printf("fetching etcd member list\n")
 	memberListResponse, err := m.etcdClient.MemberList(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 	memberCount := len(memberListResponse.Members)
+
+	fmt.Printf("fetched %d etcd members\n", memberCount)
 
 	if memberCount == masterNodeCount {
 		fmt.Printf("Etcd cluster already has 3 nodes. Nothing to do. Exiting.\n")

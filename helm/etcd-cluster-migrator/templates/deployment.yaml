@@ -41,7 +41,7 @@ spec:
         tolerationSeconds: 300
       hostNetwork: true
       nodeSelector:
-       giantswarm.io/master-id: "0"
+       giantswarm.io/master-id: "1"
       containers:
       - name: {{ .Values.name }}
         image: "{{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
