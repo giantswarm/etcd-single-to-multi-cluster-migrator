@@ -24,7 +24,5 @@ image:
   name: giantswarm/etcd-cluster-migrator
   tag: "[[ .Version ]]"
   pullPolicy: IfNotPresent
+  registry: quay.io
 
-global:
-  image:
-    registry: quay.io

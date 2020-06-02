@@ -48,3 +48,11 @@ spec:
           requests:
             cpu: {{ .Values.app.resources.requests.cpu }}
             memory: {{ .Values.app.resources.requests.memory }}
+        volumeMounts:
+        - mountPath: /etc/kubernetes/ssl/etcd
+          name: certs
+      volumes:
+      - name: certs
+        hostPath:
+          path: /etc/kubernetes/ssl/etcd
+          type: Directory

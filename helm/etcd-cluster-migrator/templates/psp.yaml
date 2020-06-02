@@ -11,6 +11,7 @@ spec:
   allowPrivilegeEscalation: false
   volumes:
     - 'hostPath'
+    - 'secret'
   allowedHostPaths:
   - pathPrefix: /etc/kubernetes/ssl/etcd/
     readOnly: true
