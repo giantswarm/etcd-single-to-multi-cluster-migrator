@@ -83,7 +83,7 @@ func NewMigrator(config MigratorConfig) (*Migrator, error) {
 
 func (m *Migrator) Run() error {
 	ctx := context.Background()
-
+	ctxWithTimeout, _ := context.WithTimeout(ctx, time.Second*20)
 	var nodeNames []string
 	for {
 		// fetch  master nodeList
@@ -102,8 +102,8 @@ func (m *Migrator) Run() error {
 		time.Sleep(masterNodeFetchInterval)
 	}
 
-	fmt.Printf("fetching etcd member list\n")
-	memberListResponse, err := m.etcdClient.MemberList(ctx)
+	fmt.Printf("fetching etcd member list from %#v\n", m.etcdClient.Endpoints())
+	memberListResponse, err := m.etcdClient.MemberList(ctxWithTimeout)
 	if err != nil {
 		return microerror.Mask(err)
 	}
