@@ -5,4 +5,3 @@ appVersion: n/a
 version: [[ .Version ]]
 description: Migrate etcd cluster to 3 node cluster.
 home: https://github.com/giantswarm/etcd-cluster-migrator
-
