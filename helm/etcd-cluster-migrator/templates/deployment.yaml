@@ -28,7 +28,20 @@ spec:
     spec:
       serviceAccountName: {{ .Values.name }}
       priorityClassName: system-cluster-critical
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      - effect: NoExecute
+        key: node.kubernetes.io/not-ready
+        operator: Exists
+        tolerationSeconds: 300
+      - effect: NoExecute
+        key: node.kubernetes.io/unreachable
+        operator: Exists
+        tolerationSeconds: 300
       hostNetwork: true
+      nodeSelector:
+       giantswarm.io/master-id: "0"
       containers:
       - name: {{ .Values.name }}
         image: "{{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
@@ -51,6 +64,7 @@ spec:
         volumeMounts:
         - mountPath: /etc/kubernetes/ssl/etcd
           name: certs
+          readOnly: true
       volumes:
       - name: certs
         hostPath:

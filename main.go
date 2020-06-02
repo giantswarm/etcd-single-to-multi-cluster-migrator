@@ -55,11 +55,14 @@ func mainError() error {
 	var m *migrator.Migrator
 	{
 		c := migrator.MigratorConfig{
-			EtcdCaFile:      f.EtcdCaFile,
-			EtcdCertFile:    f.EtcdCertFile,
-			EtcdEndpoint:    f.EtcdEndpoint,
-			EtcdKeyFile:     f.EtcdKeyFile,
-			MasterNodeLabel: f.MasterNodesLabel,
+			BaseDomain:        f.BaseDomain,
+			DockerRegistry:    f.DockerRegistry,
+			EtcdCaFile:        f.EtcdCaFile,
+			EtcdCertFile:      f.EtcdCertFile,
+			EtcdEndpoint:      f.EtcdEndpoint,
+			EtcdKeyFile:       f.EtcdKeyFile,
+			EtcdStartingIndex: f.EtcdStartingIndex,
+			MasterNodeLabel:   f.MasterNodesLabel,
 		}
 
 		m, err = migrator.NewMigrator(c)
