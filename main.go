@@ -35,10 +35,10 @@ func mainError() error {
 	var f Flag
 	flag.StringVar(&f.BaseDomain, "base-domain", "abcde.k8s.ginger.eu-west-1.aws.gigantic.io", "Base domain that is used for the etcd DNS address.")
 	flag.StringVar(&f.DockerRegistry, "docker-registry", "quay.io", "Docker registry for the run command container.")
-	flag.StringVar(&f.EtcdCaFile, "etcd-ca-file", "/etc/kubernetes/ssl/etcd/etcd-ca.pem", "Filepath to the etcd CA file.")
-	flag.StringVar(&f.EtcdCertFile, "etcd-crt-file", "/etc/kubernetes/ssl/etcd/etcd-crt.pem", "Filepath to the etcd certificate file.")
+	flag.StringVar(&f.EtcdCaFile, "etcd-ca-file", "/etc/kubernetes/ssl/etcd/server-ca.pem", "Filepath to the etcd CA file.")
+	flag.StringVar(&f.EtcdCertFile, "etcd-crt-file", "/etc/kubernetes/ssl/etcd/server-crt.pem", "Filepath to the etcd certificate file.")
 	flag.StringVar(&f.EtcdEndpoint, "etcd-endpoint", "https://127.0.0.1:2379", "Etcd endpoint for connection to the etcd server.")
-	flag.StringVar(&f.EtcdKeyFile, "etcd-key-file", "/etc/kubernetes/ssl/etcd/etcd-key.pem", "Filepath to the etcd private key file.")
+	flag.StringVar(&f.EtcdKeyFile, "etcd-key-file", "/etc/kubernetes/ssl/etcd/server-key.pem", "Filepath to the etcd private key file.")
 	flag.IntVar(&f.EtcdStartingIndex, "etcd-starting-index", 1, "Starting index for the etcd DNS address.")
 	flag.StringVar(&f.MasterNodesLabel, "master-node-label", "role=master", "Label selector to match against all master nodes.")
 
