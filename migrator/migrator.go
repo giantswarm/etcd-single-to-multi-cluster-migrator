@@ -83,7 +83,8 @@ func NewMigrator(config MigratorConfig) (*Migrator, error) {
 
 func (m *Migrator) Run() error {
 	ctx := context.Background()
-	ctxWithTimeout, _ := context.WithTimeout(ctx, time.Second*20)
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Second*20)
+	defer cancel()
 	var nodeNames []string
 	for {
 		// fetch  master nodeList
