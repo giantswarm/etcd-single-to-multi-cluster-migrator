@@ -174,18 +174,6 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 		return microerror.Maskf(executionFailedError, "nodeCount can only have values 2 or 3")
 	}
 
-	// add new node to the etcd cluster via etcd client API
-	{
-		nodeIndex := m.etcdStartingIndex + nodeCount - 1
-
-		peerUrls := []string{etcdPeerName(nodeIndex, m.baseDomain)}
-		r, err := m.etcdClient.Cluster.MemberAddAsLearner(ctx, peerUrls)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-		fmt.Printf("Sucesfully added new member %#v to the etcd cluster.\n", r.Member)
-	}
-
 	// execute commands on the second node so the node join cluster and sync data
 	{
 		initialClusterArg := fmt.Sprintf("--initial-cluster %s\\\\", initialCluster(m.etcdStartingIndex, m.baseDomain, nodeCount))
@@ -193,6 +181,7 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 
 		commands := []string{
 			"systemctl stop etcd3",
+			"rm -rf /var/lib/etcd/member",
 			"sed -i 's/--initial-cluster-state new/--initial-cluster-state existing/g' /etc/systemd/system/etcd3.service",
 			sedInitialClusterCmd,
 			"systemctl daemon-reload",
@@ -205,7 +194,20 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		fmt.Printf("Sucesfully added node %s to the etcd cluster.\n", nodeName)
+		fmt.Printf("Added job fo syncing data on node  %s\n", nodeName)
+
+	}
+
+	// add new node to the etcd cluster via etcd client API
+	{
+		nodeIndex := m.etcdStartingIndex + nodeCount - 1
+
+		peerUrls := []string{etcdPeerName(nodeIndex, m.baseDomain)}
+		r, err := m.etcdClient.Cluster.MemberAddAsLearner(ctx, peerUrls)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		fmt.Printf("Sucesfully added new member %#v to the etcd cluster.\n", r.Member)
 	}
 
 	return nil

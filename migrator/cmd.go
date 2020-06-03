@@ -2,6 +2,7 @@ package migrator
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/giantswarm/microerror"
 	batchapiv1 "k8s.io/api/batch/v1"
@@ -40,7 +41,7 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 			return microerror.Mask(err)
 		}
 	}
-	// the job for running commands
+	// run command
 	{
 		job := buildCommandJob(nodeName, m.dockerRegistry)
 		err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(job.Name, &apismetav1.DeleteOptions{})
@@ -50,9 +51,32 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 			return microerror.Mask(err)
 		}
 
-		_, err = m.k8sClient.BatchV1().Jobs(runCommandNamespace).Create(job)
+		job, err = m.k8sClient.BatchV1().Jobs(runCommandNamespace).Create(job)
 		if err != nil {
 			return microerror.Mask(err)
+		}
+
+		completed := false
+		for {
+			fmt.Printf("Waiting for job %s to be completed\n", job.Name)
+			time.Sleep(time.Second * 2)
+
+			job, err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Get(job.Name, apismetav1.GetOptions{})
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			for _, c := range job.Status.Conditions {
+				if c.Type == "Complete" && c.Status == apiv1.ConditionTrue {
+					fmt.Printf("Job %s was completed.", job.Name)
+					completed = true
+					break
+				}
+			}
+
+			if completed {
+				break
+			}
 		}
 	}
 
