@@ -198,8 +198,6 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		fmt.Printf("Added job for syncing data on node %s\n", nodeName)
-
 	}
 
 	// add new node to the etcd cluster via etcd client API
@@ -207,7 +205,7 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 		nodeIndex := m.etcdStartingIndex + nodeCount - 1
 
 		peerUrls := []string{etcdPeerName(nodeIndex, m.baseDomain)}
-		r, err := m.etcdClient.Cluster.MemberAddAsLearner(ctx, peerUrls)
+		r, err := m.etcdClient.Cluster.MemberAdd(ctx, peerUrls)
 		if err != nil {
 			return microerror.Mask(err)
 		}

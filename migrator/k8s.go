@@ -1,6 +1,7 @@
 package migrator
 
 import (
+	"fmt"
 	"sort"
 	"time"
 
@@ -45,13 +46,16 @@ func getNodeNames(nodes []v1.Node) []string {
 }
 
 func waitForApiAvailable(c kubernetes.Interface) {
+	fmt.Printf("Waiting for k8s api to avaiable again.\n")
 	time.Sleep(time.Second * 30)
 
 	for {
-		_, err := c.CoreV1().Namespaces().List(metav1.ListOptions{})
+		_, err := c.CoreV1().Nodes().List(metav1.ListOptions{})
 
 		if err == nil {
 			break
+		} else {
+			fmt.Printf("API is still down.\n")
 		}
 		time.Sleep(time.Second * 5)
 	}
