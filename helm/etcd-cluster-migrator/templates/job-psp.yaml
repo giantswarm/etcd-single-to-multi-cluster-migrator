@@ -7,10 +7,11 @@ metadata:
     app: {{ .Values.name }}-job
     giantswarm.io/service-type: "managed"
 spec:
-  privileged: false
-  allowPrivilegeEscalation: false
+  privileged: true
+  allowPrivilegeEscalation: true
   volumes:
     - 'configMap'
+    - 'secret'
   hostNetwork: false
   hostIPC: false
   hostPID: true

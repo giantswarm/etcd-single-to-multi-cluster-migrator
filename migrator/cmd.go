@@ -88,7 +88,7 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 }
 
 func buildCommandJob(nodeName string, dockerRegistry string) *batchapiv1.Job {
-	activeDeadlineSeconds := int64(60)
+	activeDeadlineSeconds := int64(120)
 	backOffLimit := int32(1)
 	completions := int32(1)
 	privileged := true
@@ -132,7 +132,8 @@ func buildCommandJob(nodeName string, dockerRegistry string) *batchapiv1.Job {
 								},
 							},
 							SecurityContext: &apiv1.SecurityContext{
-								Privileged: &privileged,
+								Privileged:               &privileged,
+								AllowPrivilegeEscalation: &privileged,
 							},
 							Command: []string{
 								"/bin/sh",
@@ -160,6 +161,10 @@ func buildCommandJob(nodeName string, dockerRegistry string) *batchapiv1.Job {
 							Key:      "node.kubernetes.io/unschedulable",
 							Operator: "Exists",
 							Effect:   "NoSchedule",
+						},
+						{
+							Key:    "node-role.kubernetes.io/master",
+							Effect: "NoSchedule",
 						},
 					},
 					Volumes: []apiv1.Volume{
