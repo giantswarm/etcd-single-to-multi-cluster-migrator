@@ -5,10 +5,10 @@
 name: etcd-cluster-migrator
 
 configmap:
-  baseDomain: "cq2ks.k8s.ginger.eu-west-1.aws.gigantic.io"
+  baseDomain: "a5dfc.k8s.ginger.eu-west-1.aws.gigantic.io"
 
 app:
-  baseDomain: "cq2ks.k8s.ginger.eu-west-1.aws.gigantic.io"
+  baseDomain: "a5dfc.k8s.ginger.eu-west-1.aws.gigantic.io"
 
   userID: 0
   groupID: 0
