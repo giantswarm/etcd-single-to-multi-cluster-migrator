@@ -34,8 +34,7 @@ func createEtcdClient(caFile string, certFile string, keyFile string, endpoint s
 			Certificates:       []tls.Certificate{etcdCertPair},
 			ClientCAs:          etcdCaCert,
 			RootCAs:            etcdCaCert,
-			InsecureSkipVerify: true,
-			//ServerName: "127.0.0.1",
+			InsecureSkipVerify: false,
 		},
 	}
 
