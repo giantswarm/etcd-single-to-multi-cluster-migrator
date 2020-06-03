@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/coreos/etcd/clientv3"
 	"github.com/giantswarm/microerror"
+	etcdclientv3 "go.etcd.io/etcd/clientv3"
 )
 
 const (
 	dialTimeout = time.Minute
 )
 
-func createEtcdClient(caFile string, certFile string, keyFile string, endpoint string) (*clientv3.Client, error) {
+func createEtcdClient(caFile string, certFile string, keyFile string, endpoint string) (*etcdclientv3.Client, error) {
 	etcdCertPair, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -24,20 +24,22 @@ func createEtcdClient(caFile string, certFile string, keyFile string, endpoint s
 		return nil, microerror.Mask(err)
 	}
 
-	config := clientv3.Config{
+	config := etcdclientv3.Config{
 		DialTimeout: dialTimeout,
 		Endpoints: []string{
 			endpoint,
 		},
+
 		TLS: &tls.Config{
 			Certificates:       []tls.Certificate{etcdCertPair},
 			ClientCAs:          etcdCaCert,
 			RootCAs:            etcdCaCert,
-			InsecureSkipVerify: false,
+			InsecureSkipVerify: true,
+			//ServerName: "127.0.0.1",
 		},
 	}
 
-	client, err := clientv3.New(config)
+	client, err := etcdclientv3.New(config)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/coreos/etcd/clientv3"
-	etcdserver "github.com/coreos/etcd/etcdserver/etcdserverpb"
 	"github.com/giantswarm/microerror"
+	etcdclientv3 "go.etcd.io/etcd/clientv3"
+	etcdserver "go.etcd.io/etcd/etcdserver/etcdserverpb"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -34,7 +34,7 @@ type Migrator struct {
 	etcdStartingIndex int
 	masterNodeLabel   string
 
-	etcdClient *clientv3.Client
+	etcdClient *etcdclientv3.Client
 	k8sClient  kubernetes.Interface
 }
 
@@ -82,9 +82,11 @@ func NewMigrator(config MigratorConfig) (*Migrator, error) {
 }
 
 func (m *Migrator) Run() error {
+	defer m.etcdClient.Close()
 	ctx := context.Background()
 	ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Second*20)
 	defer cancel()
+
 	var nodeNames []string
 	for {
 		// fetch  master nodeList
@@ -104,7 +106,7 @@ func (m *Migrator) Run() error {
 	}
 
 	fmt.Printf("fetching etcd member list from %#v\n", m.etcdClient.Endpoints())
-	memberListResponse, err := m.etcdClient.MemberList(ctxWithTimeout)
+	memberListResponse, err := m.etcdClient.Cluster.MemberList(ctxWithTimeout)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -156,7 +158,7 @@ func (m *Migrator) fixFirstNodePeerUrl(ctx context.Context, etcdMembers []*etcds
 	id := etcdMembers[0].ID
 	peerUrls := []string{etcdPeerName(m.etcdStartingIndex, m.baseDomain)}
 
-	_, err := m.etcdClient.MemberUpdate(ctx, id, peerUrls)
+	_, err := m.etcdClient.Cluster.MemberUpdate(ctx, id, peerUrls)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -177,7 +179,7 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 		nodeIndex := m.etcdStartingIndex + nodeCount - 1
 
 		peerUrls := []string{etcdPeerName(nodeIndex, m.baseDomain)}
-		r, err := m.etcdClient.MemberAdd(ctx, peerUrls)
+		r, err := m.etcdClient.Cluster.MemberAddAsLearner(ctx, peerUrls)
 		if err != nil {
 			return microerror.Mask(err)
 		}
