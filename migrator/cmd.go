@@ -89,7 +89,7 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 
 func buildCommandJob(nodeName string, dockerRegistry string) *batchapiv1.Job {
 	activeDeadlineSeconds := int64(120)
-	backOffLimit := int32(1)
+	backOffLimit := int32(10)
 	completions := int32(1)
 	privileged := true
 	priority := int32(2000000000)
@@ -189,6 +189,7 @@ func buildCommandJob(nodeName string, dockerRegistry string) *batchapiv1.Job {
 
 func buildConfigMapFile(cmds []string) *apiv1.ConfigMap {
 	configMapContent := `#/bin/bash
+set -xe
 `
 	for _, c := range cmds {
 		configMapContent += nsenterCommand + c + "\n"
