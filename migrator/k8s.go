@@ -1,6 +1,7 @@
 package migrator
 
 import (
+	"sort"
 	"strconv"
 	"time"
 
@@ -31,14 +32,16 @@ func createK8SClient() (kubernetes.Interface, error) {
 }
 
 func getNodeNames(nodes []v1.Node) []string {
-	list := []string{"", "", ""}
 	// sort nodes by masterID
-	for _, n := range nodes {
-		i, _ := strconv.Atoi(n.Labels[labelMasterID])
+	sort.Slice(nodes, func(i int, j int) bool {
+		return nodes[i].Labels[labelMasterID] < nodes[j].Labels[labelMasterID]
+	})
 
-		list[i-1] = n.Name
+	list := []string{
+		nodes[0].Name,
+		nodes[1].Name,
+		nodes[2].Name,
 	}
-
 	return list
 }
 

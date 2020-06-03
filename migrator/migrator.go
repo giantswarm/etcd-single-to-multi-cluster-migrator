@@ -191,9 +191,6 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 			"systemctl start etcd3.service",
 		}
 
-		fmt.Printf("nodeList %#v\n", nodeNames)
-		fmt.Printf("node count %d, will run command on node id %d\n", nodeCount, nodeCount-1)
-
 		// tmpf
 		nodeName := nodeNames[nodeCount-1]
 
