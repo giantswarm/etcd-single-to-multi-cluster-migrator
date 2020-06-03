@@ -185,7 +185,7 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 		commands := []string{
 			"systemctl stop etcd3",
 			"rm -rf /var/lib/etcd/member",
-			"sed -i 's/--initial-cluster-state new/--initial-cluster-state existing/g' /etc/systemd/system/etcd3.service",
+			//"sed -i 's/--initial-cluster-state new/--initial-cluster-state existing/g' /etc/systemd/system/etcd3.service",
 			sedInitialClusterCmd,
 			"systemctl daemon-reload",
 			"systemctl start etcd3.service",
@@ -195,7 +195,7 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 		fmt.Printf("node count %d, will run command on node id %d\n", nodeCount, nodeCount-1)
 
 		// tmpf
-		nodeName := nodeNames[nodeCount]
+		nodeName := nodeNames[nodeCount-1]
 
 		err := m.runCommandsOnNode(nodeName, commands)
 		if err != nil {
