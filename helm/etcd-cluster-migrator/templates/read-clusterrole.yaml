@@ -12,7 +12,12 @@ rules:
     resources:
       - configmaps
       - nodes
-      - jobs
     verbs:
       - get
       - list
+  - apiGroups:
+      - batch
+    resources:
+      - jobs
+    verbs:
+      - get

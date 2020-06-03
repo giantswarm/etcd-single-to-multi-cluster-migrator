@@ -10,8 +10,15 @@ rules:
   - apiGroups:
       - ""
     resources:
-      - job
-      - configmap
+      - configmaps
     verbs:
       - create
       - delete
+  - apiGroups:
+      - batch
+    resources:
+      - jobs
+    verbs:
+      - create
+      - delete
+

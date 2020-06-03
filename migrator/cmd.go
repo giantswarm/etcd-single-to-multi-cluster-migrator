@@ -75,6 +75,10 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 			}
 
 			if completed {
+				err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(job.Name, &apismetav1.DeleteOptions{})
+				if err != nil {
+					return microerror.Mask(err)
+				}
 				break
 			}
 		}
@@ -90,7 +94,7 @@ func buildCommandJob(nodeName string, dockerRegistry string) *batchapiv1.Job {
 	privileged := true
 	priority := int32(2000000000)
 	parallelism := int32(1)
-	jobName := fmt.Sprintf("%s-command-%s", project.Name(), nodeName)
+	jobName := fmt.Sprintf("%s-command", project.Name())
 	cpu := resource.MustParse("50m")
 	memory := resource.MustParse("50Mi")
 

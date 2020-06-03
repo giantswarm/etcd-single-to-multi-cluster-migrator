@@ -53,5 +53,6 @@ func waitForApiAvailable(c kubernetes.Interface) {
 		if err == nil {
 			break
 		}
+		time.Sleep(time.Second * 5)
 	}
 }
