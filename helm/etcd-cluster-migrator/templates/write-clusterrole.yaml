@@ -10,7 +10,8 @@ rules:
   - apiGroups:
       - ""
     resources:
-      - events
+      - job
+      - configmap
     verbs:
       - create
-      - patch
+      - delete
