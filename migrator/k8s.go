@@ -2,7 +2,6 @@ package migrator
 
 import (
 	"sort"
-	"strconv"
 	"time"
 
 	"github.com/giantswarm/microerror"
