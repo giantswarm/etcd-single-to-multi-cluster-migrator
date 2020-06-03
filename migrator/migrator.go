@@ -194,7 +194,8 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 		fmt.Printf("nodeList %#v\n", nodeNames)
 		fmt.Printf("node count %d, will run command on node id %d\n", nodeCount, nodeCount-1)
 
-		nodeName := nodeNames[nodeCount-1]
+		// tmpf
+		nodeName := nodeNames[nodeCount]
 
 		err := m.runCommandsOnNode(nodeName, commands)
 		if err != nil {
