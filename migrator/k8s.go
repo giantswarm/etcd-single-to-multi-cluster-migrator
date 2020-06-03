@@ -2,9 +2,11 @@ package migrator
 
 import (
 	"sort"
+	"time"
 
 	"github.com/giantswarm/microerror"
 	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
@@ -40,4 +42,16 @@ func getNodeNames(nodes []v1.Node) []string {
 	})
 
 	return list
+}
+
+func waitForApiAvailable(c kubernetes.Interface) {
+	time.Sleep(time.Second * 30)
+
+	for {
+		_, err := c.CoreV1().Namespaces().List(metav1.ListOptions{})
+
+		if err == nil {
+			break
+		}
+	}
 }

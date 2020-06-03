@@ -134,6 +134,10 @@ func (m *Migrator) Run() error {
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		// wait until k8s api is avaiable again
+		waitForApiAvailable(m.k8sClient)
+
 		// add third node to the etcd cluster
 		err = m.addNodeToEtcdCluster(ctx, nodeNames, 3)
 		if err != nil {
