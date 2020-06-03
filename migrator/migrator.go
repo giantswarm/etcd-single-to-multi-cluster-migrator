@@ -200,7 +200,7 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		fmt.Printf("Added job fo syncing data on node  %s\n", nodeName)
+		fmt.Printf("Added job for syncing data on node %s\n", nodeName)
 
 	}
 

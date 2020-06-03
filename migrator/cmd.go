@@ -23,7 +23,7 @@ const (
 	runCommandVolume        = "command-volume"
 )
 
-var nsenterCommand = "nsenter -t 1 -m -u -n -i "
+var nsenterCommand = "nsenter -t 1 -m -u -n -i -- "
 
 func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 	// configmap for the job
