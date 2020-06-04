@@ -1,0 +1,24 @@
+# Default values for etcd-cluster-migrator-app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+name: etcd-cluster-migrator
+
+app:
+  baseDomain: "clusterID.k8s.codename.region.provider.gigantic.io"
+
+  userID: 0
+  groupID: 0
+
+  resources:
+    limits:
+      memory: 100Mi
+    requests:
+      cpu: 75m
+      memory: 100Mi
+
+image:
+  name: giantswarm/etcd-cluster-migrator
+  tag: "[[ .Version ]]"
+  pullPolicy: IfNotPresent
+  registry: quay.io
