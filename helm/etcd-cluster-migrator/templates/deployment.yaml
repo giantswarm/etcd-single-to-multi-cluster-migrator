@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.name }}
+    giantswarm.io/service-type: "managed"
+    app.kubernetes.io/name: {{ .Values.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+        giantswarm.io/service-type: "managed"
+        app.kubernetes.io/name: {{ .Values.name }}
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      serviceAccountName: {{ .Values.name }}
+      priorityClassName: system-cluster-critical
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      - effect: NoExecute
+        key: node.kubernetes.io/not-ready
+        operator: Exists
+        tolerationSeconds: 300
+      - effect: NoExecute
+        key: node.kubernetes.io/unreachable
+        operator: Exists
+        tolerationSeconds: 300
+      hostNetwork: true
+      nodeSelector:
+       giantswarm.io/master-id: "1"
+      containers:
+      - name: {{ .Values.name }}
+        image: "{{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
+        args:
+        - --base-domain={{ .Values.app.baseDomain }}
+        - --docker-registry={{ .Values.image.registry }}
+        securityContext:
+          runAsUser: {{ .Values.app.userID }}
+          runAsGroup: {{ .Values.app.groupID }}
+        resources:
+          limits:
+            memory: {{ .Values.app.resources.limits.memory }}
+          requests:
+            cpu: {{ .Values.app.resources.requests.cpu }}
+            memory: {{ .Values.app.resources.requests.memory }}
+        volumeMounts:
+        - mountPath: /etc/kubernetes/ssl/etcd
+          name: certs
+          readOnly: true
+      volumes:
+      - name: certs
+        hostPath:
+          path: /etc/kubernetes/ssl/etcd
+          type: Directory

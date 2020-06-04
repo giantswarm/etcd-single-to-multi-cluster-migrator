@@ -1,0 +1,23 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: {{ .Values.name }}-read
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.name }}
+    giantswarm.io/service-type: "managed"
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - nodes
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - batch
+    resources:
+      - jobs
+    verbs:
+      - get

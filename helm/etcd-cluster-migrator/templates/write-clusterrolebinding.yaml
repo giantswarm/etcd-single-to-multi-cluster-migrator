@@ -1,0 +1,17 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Values.name }}-write
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.name }}
+    component: {{ .Values.name }}
+    giantswarm.io/service-type: "managed"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Values.name }}-write
+subjects:
+- kind: ServiceAccount
+  name: {{ .Values.name }}
+  namespace: {{ .Release.Namespace }}
