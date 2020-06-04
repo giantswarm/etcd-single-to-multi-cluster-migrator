@@ -46,8 +46,8 @@ spec:
       - name: {{ .Values.name }}
         image: "{{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
         args:
-        - --base-domain="{{ .Values.app.baseDomain }}"
-        - --docker-registry="{{ .Values.image.registry }}"
+        - --base-domain={{ .Values.app.baseDomain }}
+        - --docker-registry={{ .Values.image.registry }}
         securityContext:
           runAsUser: {{ .Values.app.userID }}
           runAsGroup: {{ .Values.app.groupID }}
