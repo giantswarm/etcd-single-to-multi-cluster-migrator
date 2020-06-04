@@ -44,14 +44,10 @@ spec:
        giantswarm.io/master-id: "1"
       containers:
       - name: {{ .Values.name }}
-        image: "{{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
+        image: "{{ include "resource.app.registry" . }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
         args:
-        {{- if index .Values.configmap "base-domain" }}
-        - --base-domain={{ index .Values.configmap "baseDomain" }}
-        {{- else }}
-        - --base-domain={{ .Values.app.baseDomain }}
-        {{- end }}
-        - --docker-registry={{ .Values.image.registry }}
+        - --base-domain="{{ include "resource.app.baseDomain" . }}"
+        - --registry="{{ include "resource.app.registry" . }}"
         securityContext:
           runAsUser: {{ .Values.app.userID }}
           runAsGroup: {{ .Values.app.groupID }}
