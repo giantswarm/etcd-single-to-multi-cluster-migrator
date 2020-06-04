@@ -154,7 +154,7 @@ func (m *Migrator) fixFirstNodePeerUrl(ctx context.Context, etcdMembers []*etcds
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	fmt.Printf("Updated node %d PeerUrls to %#v.\n", id, peerUrls)
+	fmt.Printf("Updated first node PeerUrls to %s.\n", peerUrls)
 	return nil
 }
 
@@ -193,16 +193,15 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 		}
 	}
 
+	nodeIndex := m.etcdStartingIndex + nodeCount - 1
 	// add the new node to the etcd cluster via etcd client API
 	{
-		nodeIndex := m.etcdStartingIndex + nodeCount - 1
-
 		peerUrls := []string{etcdPeerName(nodeIndex, m.baseDomain)}
 		r, err := m.etcdClient.Cluster.MemberAdd(ctx, peerUrls)
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		fmt.Printf("Added new member %#v to the etcd cluster.\n", r.Member)
+		fmt.Printf("Added new member %s to the etcd cluster.\n", r.Member.PeerURLs)
 	}
 
 	// wait until k8s api is available again, as etcd data sync will make API unavailable for short time
@@ -211,7 +210,7 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 		return microerror.Mask(err)
 	}
 
-	fmt.Printf("Etcd cluster synced, node %s succesfully joined etcd cluster.\n", nodeNames)
+	fmt.Printf("Etcd cluster synced, node %s succesfully joined etcd cluster.\n", nodeNames[nodeIndex])
 
 	return nil
 }
