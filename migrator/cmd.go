@@ -45,7 +45,7 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 			return microerror.Mask(err)
 		}
 	}
-	// run command on the
+	// run command on the node
 	{
 		job := buildCommandJob(nodeName, m.dockerRegistry)
 		err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(job.Name, &apismetav1.DeleteOptions{})
