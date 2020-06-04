@@ -1,22 +1,15 @@
 package migrator
 
 import (
-	"fmt"
-	"sort"
-	"time"
-
 	"github.com/giantswarm/microerror"
 	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"sort"
 )
 
 const (
 	labelMasterID = "giantswarm.io/master-id"
-
-	waitApiStartInterval = time.Second * 30
-	waitApiRetryInterval = time.Second * 5
 )
 
 func createK8SClient() (kubernetes.Interface, error) {
@@ -47,20 +40,4 @@ func getNodeNames(nodes []v1.Node) []string {
 		nodes[2].Name,
 	}
 	return list
-}
-
-func waitForApiAvailable(c kubernetes.Interface) {
-	fmt.Printf("Waiting for k8s api to avaiable again.\n")
-	time.Sleep(waitApiStartInterval)
-
-	for {
-		_, err := c.CoreV1().Nodes().List(metav1.ListOptions{})
-
-		if err == nil {
-			break
-		} else {
-			fmt.Printf("API is still down.\n")
-		}
-		time.Sleep(waitApiRetryInterval)
-	}
 }

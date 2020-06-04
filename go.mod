@@ -3,6 +3,7 @@ module github.com/giantswarm/etcd-cluster-migrator
 go 1.14
 
 require (
+	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/microerror v0.2.0
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/spf13/pflag v1.0.5
