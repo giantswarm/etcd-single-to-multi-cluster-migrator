@@ -14,6 +14,9 @@ import (
 
 const (
 	labelMasterID = "giantswarm.io/master-id"
+
+	waitApiStartInterval = time.Second * 30
+	waitApiRetryInterval = time.Second * 5
 )
 
 func createK8SClient() (kubernetes.Interface, error) {
@@ -31,6 +34,7 @@ func createK8SClient() (kubernetes.Interface, error) {
 	return clientset, nil
 }
 
+// getNodeNames return nodeName list ordered by master id label.
 func getNodeNames(nodes []v1.Node) []string {
 	// sort nodes by masterID
 	sort.Slice(nodes, func(i int, j int) bool {
@@ -47,7 +51,7 @@ func getNodeNames(nodes []v1.Node) []string {
 
 func waitForApiAvailable(c kubernetes.Interface) {
 	fmt.Printf("Waiting for k8s api to avaiable again.\n")
-	time.Sleep(time.Second * 30)
+	time.Sleep(waitApiStartInterval)
 
 	for {
 		_, err := c.CoreV1().Nodes().List(metav1.ListOptions{})
@@ -57,6 +61,6 @@ func waitForApiAvailable(c kubernetes.Interface) {
 		} else {
 			fmt.Printf("API is still down.\n")
 		}
-		time.Sleep(time.Second * 5)
+		time.Sleep(waitApiRetryInterval)
 	}
 }

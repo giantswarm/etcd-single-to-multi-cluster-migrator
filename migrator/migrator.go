@@ -135,7 +135,7 @@ func (m *Migrator) Run() error {
 			return microerror.Mask(err)
 		}
 
-		// wait until k8s api is avaiable again
+		// wait until k8s api is available again, as etcd data sync will make API unavailable for short time
 		waitForApiAvailable(m.k8sClient)
 
 		// add third node to the etcd cluster
@@ -154,9 +154,12 @@ func (m *Migrator) Run() error {
 	}
 
 	fmt.Printf("ETCD cluster migration succesfuly finished. Member list %#v.\n", memberListResponse.Members)
-	return nil
+	fmt.Printf("Sleeping forever.\n")
+	select {}
 }
 
+// fixFirstNodePeerUrl ensure the peerURL for the first node in etcdcluster is properly set
+// as it can have 'localhost' value from the previous version fo k8scloudconfig.
 func (m *Migrator) fixFirstNodePeerUrl(ctx context.Context, etcdMembers []*etcdserver.Member) error {
 	id := etcdMembers[0].ID
 	peerUrls := []string{etcdPeerName(m.etcdStartingIndex, m.baseDomain)}
@@ -169,6 +172,10 @@ func (m *Migrator) fixFirstNodePeerUrl(ctx context.Context, etcdMembers []*etcds
 	return nil
 }
 
+// addNodeToEtcdCluster configure etcd3 service on the second or third node in order
+// to join the existing cluster via k8s job executed on the node and after that
+// it will add the node to the etcd cluster via etcdv3 client API.
+
 func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string, nodeCount int) error {
 	// nodeCount can only be 2 or 3
 	// 2  when adding second node to a single node etcd cluster
@@ -177,30 +184,30 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 		return microerror.Maskf(executionFailedError, "nodeCount can only have values 2 or 3")
 	}
 
-	// execute commands on the second node so the node join cluster and sync data
+	// execute commands on the node so the node in order to configure new etcd3 member to join existing cluster
 	{
+		nodeName := nodeNames[nodeCount-1]
+
 		initialClusterArg := fmt.Sprintf("--initial-cluster %s\\\\", initialCluster(m.etcdStartingIndex, m.baseDomain, nodeCount))
 		sedInitialClusterCmd := fmt.Sprintf("sed -i 's/--initial-cluster .*\\\\/%s/g' /etc/systemd/system/etcd3.service", initialClusterArg)
 
 		commands := []string{
-			"systemctl stop etcd3",
-			"rm -rf /var/lib/etcd/member",
-			//"sed -i 's/--initial-cluster-state new/--initial-cluster-state existing/g' /etc/systemd/system/etcd3.service",
-			sedInitialClusterCmd,
-			"systemctl daemon-reload",
-			"systemctl start etcd3.service",
+			"systemctl stop etcd3",          // stop etcd3 service
+			"rm -rf /var/lib/etcd/member",   // ensure the data folder is empty
+			sedInitialClusterCmd,            // sed command to properly set initialCluster string
+			"systemctl daemon-reload",       // load new etcd3 service file
+			"systemctl start etcd3.service", // restart etcd3, after this etcd3 will start syncing data from the cluster
 		}
 
-		// tmpf
-		nodeName := nodeNames[nodeCount-1]
-
+		fmt.Printf("Configuring node %d for etcd cluster.\n", nodeName)
+		// execute commands above on the node via k8s job
 		err := m.runCommandsOnNode(nodeName, commands)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 	}
 
-	// add new node to the etcd cluster via etcd client API
+	// add the new node to the etcd cluster via etcd client API
 	{
 		nodeIndex := m.etcdStartingIndex + nodeCount - 1
 

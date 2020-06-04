@@ -56,6 +56,5 @@ func initialCluster(startingIndex int, baseDomain string, nodesCount int) string
 	for i := 1; i < nodesCount; i++ {
 		r += fmt.Sprintf(",etcd%d=https:\\/\\/etcd%d.%s:2380", startingIndex+i, startingIndex+i, baseDomain)
 	}
-
 	return r
 }

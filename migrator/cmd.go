@@ -21,14 +21,18 @@ const (
 	runCommandPriorityClass = "system-cluster-critical"
 	runCommandSAName        = "etcd-cluster-migrator-job"
 	runCommandVolume        = "command-volume"
+
+	nsenterCommand = "nsenter -t 1 -m -u -n -i -- "
+
+	waitJobCompleted = time.Second * 2
 )
 
-var nsenterCommand = "nsenter -t 1 -m -u -n -i -- "
-
+// runCommandsOnNode will execute command list on the specified node in the host namespace.
 func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
-	// configmap for the job
+	// configmap for the job where commands will be stored in a single bash file
 	{
 		cm := buildConfigMapFile(commands)
+		// ensure there is no configmap present
 		err := m.k8sClient.CoreV1().ConfigMaps(runCommandNamespace).Delete(cm.Name, &apismetav1.DeleteOptions{})
 		if k8serrors.IsNotFound(err) {
 			// It is fine as its is just safe check before creating.
@@ -41,7 +45,7 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 			return microerror.Mask(err)
 		}
 	}
-	// run command
+	// run command on the
 	{
 		job := buildCommandJob(nodeName, m.dockerRegistry)
 		err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(job.Name, &apismetav1.DeleteOptions{})
@@ -56,26 +60,19 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 			return microerror.Mask(err)
 		}
 
-		completed := false
 		for {
 			fmt.Printf("Waiting for job %s to be completed\n", job.Name)
-			time.Sleep(time.Second * 2)
+			time.Sleep(waitJobCompleted)
 
 			job, err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Get(job.Name, apismetav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
-			for _, c := range job.Status.Conditions {
-				if c.Type == "Complete" && c.Status == apiv1.ConditionTrue {
-					fmt.Printf("Job %s was completed.", job.Name)
-					completed = true
-					break
-				}
-			}
-
-			if completed {
+			if isJobCompleted(job) {
 				err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(job.Name, &apismetav1.DeleteOptions{})
+
+				fmt.Printf("Job %s was completed.\n", job.Name)
 				if err != nil {
 					return microerror.Mask(err)
 				}
@@ -87,6 +84,17 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 	return nil
 }
 
+func isJobCompleted(j *batchapiv1.Job) bool {
+	for _, c := range j.Status.Conditions {
+		if c.Type == "Complete" && c.Status == apiv1.ConditionTrue {
+			return true
+		}
+	}
+	return false
+}
+
+// buildCommandJob return job that will execute commands on a node in host namespace.
+// The executed file is taken from configmap which is mounted to the pod.
 func buildCommandJob(nodeName string, dockerRegistry string) *batchapiv1.Job {
 	activeDeadlineSeconds := int64(120)
 	backOffLimit := int32(10)
@@ -187,6 +195,8 @@ func buildCommandJob(nodeName string, dockerRegistry string) *batchapiv1.Job {
 	return &j
 }
 
+// buildConfigMapFile return configmap which has content of the bash file which has the commands.
+// This configmap should be used as volume for the pod where it will be executed.
 func buildConfigMapFile(cmds []string) *apiv1.ConfigMap {
 	configMapContent := `#/bin/bash
 set -xe
