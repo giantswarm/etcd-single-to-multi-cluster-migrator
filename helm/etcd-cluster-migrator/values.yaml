@@ -4,6 +4,10 @@
 
 name: etcd-cluster-migrator
 
+configmap:
+  baseDomain: "clusterID.k8s.codename.region.provider.gigantic.io"
+  registry: quay.io
+
 app:
   baseDomain: "clusterID.k8s.codename.region.provider.gigantic.io"
 
