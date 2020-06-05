@@ -174,8 +174,11 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 	{
 		nodeName := nodeNames[nodeCount-1]
 
-		initialClusterArg := fmt.Sprintf("--initial-cluster %s\\\\", initialCluster(m.etcdStartingIndex, m.baseDomain, nodeCount))
-		sedInitialClusterCmd := fmt.Sprintf("sed -i 's/--initial-cluster .*\\\\/%s/g' /etc/systemd/system/etcd3.service", initialClusterArg)
+		// the final sed command may look like this:
+		// sed -i 's/--initial-cluster .*\\/--initial-cluster etcd1=https://etcd1.clusterd.domain.io:2380,etcd1=https://etcd2.clusterd.domain.io:2380/g' /etc/systemd/system/etcd3.service'
+		sedReplaceRegEx := "--initial-cluster .*\\\\"
+		sedReplaceWith := fmt.Sprintf("--initial-cluster %s\\\\", initialCluster(m.etcdStartingIndex, m.baseDomain, nodeCount))
+		sedInitialClusterCmd := fmt.Sprintf("sed -i 's/%s/%s/g' /etc/systemd/system/etcd3.service", sedReplaceRegEx, sedReplaceWith)
 
 		commands := []string{
 			"systemctl stop etcd3",          // stop etcd3 service
