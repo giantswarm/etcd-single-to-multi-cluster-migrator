@@ -1,22 +1,17 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   name: {{ .Values.name }}
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.name }}
     giantswarm.io/service-type: "managed"
-    app.kubernetes.io/name: {{ .Values.name }}
+    app.kubernetes.io/name: {{ .Values.name }}t
 spec:
-  replicas: 1
+  backoffLimit: 50
   selector:
     matchLabels:
       app: {{ .Values.name }}
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
   template:
     metadata:
       labels:
@@ -40,6 +35,7 @@ spec:
         operator: Exists
         tolerationSeconds: 300
       hostNetwork: true
+      restartPolicy: "OnFailure"
       nodeSelector:
        giantswarm.io/master-id: "1"
       containers:
