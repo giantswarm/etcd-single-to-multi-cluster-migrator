@@ -9,9 +9,6 @@ metadata:
     app.kubernetes.io/name: {{ .Values.name }}t
 spec:
   backoffLimit: 50
-  selector:
-    matchLabels:
-      app: {{ .Values.name }}
   template:
     metadata:
       labels:
