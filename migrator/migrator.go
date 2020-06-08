@@ -140,6 +140,7 @@ func (m *Migrator) Run() error {
 	}
 
 	fmt.Printf("ETCD cluster migration succesfuly finished.\n\n")
+	return nil
 }
 
 // fixFirstNodePeerUrl ensure the peerURL for the first node in etcdcluster is properly set
