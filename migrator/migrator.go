@@ -170,6 +170,10 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 		return microerror.Maskf(executionFailedError, "nodeCount can only have values 2 or 3")
 	}
 
+	if len(nodeNames) != 3 {
+		return microerror.Maskf(executionFailedError, "nodeNames len must be 3")
+	}
+
 	// execute commands on the node to configure new etcd3 member so that it can join the existing cluster
 	{
 		nodeName := nodeNames[nodeCount-1]
