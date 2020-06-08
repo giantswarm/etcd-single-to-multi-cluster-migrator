@@ -140,8 +140,7 @@ func (m *Migrator) Run() error {
 	}
 
 	fmt.Printf("ETCD cluster migration succesfuly finished.\n\n")
-	fmt.Printf("Sleeping forever.\n")
-	select {}
+	return nil
 }
 
 // fixFirstNodePeerUrl ensure the peerURL for the first node in etcdcluster is properly set
@@ -217,7 +216,7 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 		return microerror.Mask(err)
 	}
 
-	fmt.Printf("Etcd cluster synced, node %s succesfully joined etcd cluster.\n", nodeNames[nodeIndex])
+	fmt.Printf("Etcd cluster synced, node %s succesfully joined etcd cluster.\n", nodeNames[nodeCount-1])
 
 	return nil
 }
