@@ -70,9 +70,9 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 			}
 
 			if isJobCompleted(job) {
-				err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(job.Name, &apismetav1.DeleteOptions{})
-
 				fmt.Printf("Job %s was completed.\n", job.Name)
+
+				err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(job.Name, &apismetav1.DeleteOptions{})
 				if err != nil {
 					return microerror.Mask(err)
 				}
