@@ -209,7 +209,7 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 		return microerror.Mask(err)
 	}
 
-	fmt.Printf("Etcd cluster synced, node %s succesfully joined etcd cluster.\n", nodeNames[nodeIndex])
+	fmt.Printf("Etcd cluster synced, node %s succesfully joined etcd cluster.\n", nodeNames[nodeCount-1])
 
 	return nil
 }
