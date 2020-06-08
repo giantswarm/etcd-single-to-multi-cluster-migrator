@@ -6,7 +6,7 @@ metadata:
   labels:
     app: {{ .Values.name }}
     giantswarm.io/service-type: "managed"
-    app.kubernetes.io/name: {{ .Values.name }}t
+    app.kubernetes.io/name: {{ .Values.name }}
 spec:
   backoffLimit: 50
   template:
