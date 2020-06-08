@@ -6,6 +6,7 @@ metadata:
   labels:
     app: {{ .Values.name }}-job
     giantswarm.io/service-type: "managed"
+    giantswarm.io/managed-by: "aws-operator"
 spec:
   podSelector:
     matchLabels:

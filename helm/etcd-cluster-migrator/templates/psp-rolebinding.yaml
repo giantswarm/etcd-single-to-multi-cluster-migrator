@@ -6,6 +6,7 @@ metadata:
   labels:
     app: {{ .Values.name }}
     giantswarm.io/service-type: "managed"
+    giantswarm.io/managed-by: "aws-operator"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

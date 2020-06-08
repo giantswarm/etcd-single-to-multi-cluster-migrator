@@ -1,4 +1,4 @@
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: {{ .Values.name }}-write
@@ -7,6 +7,7 @@ metadata:
     app: {{ .Values.name }}
     component: {{ .Values.name }}
     giantswarm.io/service-type: "managed"
+    giantswarm.io/managed-by: "aws-operator"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
