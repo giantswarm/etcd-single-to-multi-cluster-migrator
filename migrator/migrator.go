@@ -192,7 +192,7 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 			"systemctl start etcd3.service", // restart etcd3, after this etcd3 will start syncing data from the cluster
 		}
 
-		fmt.Printf("Configuring node %s for etcd cluster.\n", nodeName)
+		fmt.Printf("Configuring node %s for etcd cluster %s.\n", nodeName, commands)
 		// execute commands above on the node via k8s job
 		err := m.runCommandsOnNode(nodeName, commands)
 		if err != nil {

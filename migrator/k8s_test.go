@@ -8,14 +8,14 @@ import (
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func Test_Controller_Resource_TCCPN_Template_Render(t *testing.T) {
+func Test_getNodeNames(t *testing.T) {
 	testCases := []struct {
 		name            string
 		nodes           []v1.Node
 		sortedNodeNames []string
 	}{
 		{
-			name: "case 0:  ordered nodes",
+			name: "case 0: ordered nodes",
 			nodes: []v1.Node{
 				{
 					ObjectMeta: apismetav1.ObjectMeta{
@@ -45,7 +45,7 @@ func Test_Controller_Resource_TCCPN_Template_Render(t *testing.T) {
 			sortedNodeNames: []string{"node-1", "node-2", "node-3"},
 		},
 		{
-			name: "case 1:  not ordered nodes",
+			name: "case 1: not ordered nodes",
 			nodes: []v1.Node{
 				{
 					ObjectMeta: apismetav1.ObjectMeta{
