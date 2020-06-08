@@ -1,10 +1,10 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ .Values.name }}-job-psp-use
+  name: {{ .Values.name }}-cmd-psp-use
   namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ .Values.name }}-job
+    app: {{ .Values.name }}-cmd
     giantswarm.io/service-type: "managed"
     giantswarm.io/managed-by: "aws-operator"
 rules:
@@ -13,6 +13,6 @@ rules:
   resources:
   - podsecuritypolicies
   resourceNames:
-  - {{ .Values.name }}-job
+  - {{ .Values.name }}-cmd
   verbs:
   - use

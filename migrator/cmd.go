@@ -19,7 +19,7 @@ const (
 	runCommandDockerImage   = "giantswarm/alpine:3.11.6"
 	runCommandNamespace     = apismetav1.NamespaceSystem
 	runCommandPriorityClass = "system-cluster-critical"
-	runCommandSAName        = "etcd-cluster-migrator-job"
+	runCommandSAName        = "etcd-cluster-migrator-cmd"
 	runCommandVolume        = "command-volume"
 
 	nsenterCommand = "nsenter -t 1 -m -u -n -i -- "

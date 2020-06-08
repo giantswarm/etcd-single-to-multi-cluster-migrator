@@ -1,10 +1,10 @@
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
-  name: {{ .Values.name }}-job
+  name: {{ .Values.name }}-cmd
   namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ .Values.name }}-job
+    app: {{ .Values.name }}-cmd
     giantswarm.io/service-type: "managed"
     giantswarm.io/managed-by: "aws-operator"
 spec:

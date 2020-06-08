@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ .Values.name }}-job-psp-use
+  name: {{ .Values.name }}-cmd-psp-use
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.name }}
@@ -10,8 +10,8 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{ .Values.name }}-job-psp-use
+  name: {{ .Values.name }}-cmd-psp-use
 subjects:
 - kind: ServiceAccount
-  name: {{ .Values.name }}-job
+  name: {{ .Values.name }}-cmd
   namespace: {{ .Release.Namespace }}
