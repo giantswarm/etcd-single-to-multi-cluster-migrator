@@ -164,7 +164,7 @@ func (m *Migrator) fixFirstNodePeerUrl(ctx context.Context, etcdMembers []*etcds
 
 func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string, nodeCount int) error {
 	// nodeCount can only be 2 or 3
-	// 2  when adding second node to a single node etcd cluster
+	// 2 when adding second node to a single node etcd cluster
 	// 3 when adding third node to two node etcd cluster
 	if nodeCount != 2 && nodeCount != 3 {
 		return microerror.Maskf(executionFailedError, "nodeCount can only have values 2 or 3")
