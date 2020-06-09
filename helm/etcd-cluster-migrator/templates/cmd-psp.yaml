@@ -1,36 +1,27 @@
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
-  name: {{ .Values.name }}
+  name: {{ .Values.name }}-cmd
   namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ .Values.name }}
+    app: {{ .Values.name }}-cmd
     giantswarm.io/service-type: "managed"
     giantswarm.io/managed-by: "aws-operator"
 spec:
-  privileged: false
-  allowPrivilegeEscalation: false
+  privileged: true
+  allowPrivilegeEscalation: true
   volumes:
-    - 'hostPath'
+    - 'configMap'
     - 'secret'
-  allowedHostPaths:
-  - pathPrefix: /etc/kubernetes/ssl/etcd/
-    readOnly: true
-  hostNetwork: true
+  hostNetwork: false
   hostIPC: false
-  hostPID: false
+  hostPID: true
   runAsUser:
     rule: 'RunAsAny'
   seLinux:
     rule: 'RunAsAny'
   supplementalGroups:
     rule: 'RunAsAny'
-    ranges:
-      - min: 0
-        max: 0
   fsGroup:
-    rule: 'MustRunAs'
-    ranges:
-      - min: 0
-        max: 0
+    rule: 'RunAsAny'
   readOnlyRootFilesystem: false
