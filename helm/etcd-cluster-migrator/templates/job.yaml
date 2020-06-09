@@ -1,5 +1,5 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   name: {{ .Values.name }}
   namespace: {{ .Release.Namespace }}
@@ -9,15 +9,7 @@ metadata:
     giantswarm.io/managed-by: "aws-operator"
     app.kubernetes.io/name: {{ .Values.name }}
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: {{ .Values.name }}
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
+  backoffLimit: 50
   template:
     metadata:
       labels:
@@ -42,6 +34,7 @@ spec:
         operator: Exists
         tolerationSeconds: 300
       hostNetwork: true
+      restartPolicy: "OnFailure"
       nodeSelector:
        giantswarm.io/master-id: "1"
       containers:
