@@ -6,6 +6,7 @@ metadata:
   labels:
     app: {{ .Values.name }}
     giantswarm.io/service-type: "managed"
+    giantswarm.io/managed-by: "aws-operator"
     app.kubernetes.io/name: {{ .Values.name }}
 spec:
   backoffLimit: 50
@@ -14,6 +15,7 @@ spec:
       labels:
         app: {{ .Values.name }}
         giantswarm.io/service-type: "managed"
+        giantswarm.io/managed-by: "aws-operator"
         app.kubernetes.io/name: {{ .Values.name }}
       annotations:
         scheduler.alpha.kubernetes.io/critical-pod: ''
