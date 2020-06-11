@@ -60,6 +60,11 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 			return microerror.Mask(err)
 		}
 
+		deletePropagationPolicy := apismetav1.DeletePropagationForeground
+		delOptions := &apismetav1.DeleteOptions{
+			PropagationPolicy: &deletePropagationPolicy,
+		}
+
 		for {
 			fmt.Printf("Waiting for job %s to be completed\n", job.Name)
 			time.Sleep(waitJobCompleted)
@@ -72,7 +77,7 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 			if isDeadlineExceeded(job) {
 				fmt.Printf("Job %s has status failed due deadline exceeded, recreating job.\n", job.Name)
 
-				err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(job.Name, &apismetav1.DeleteOptions{})
+				err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(job.Name, delOptions)
 				if err != nil {
 					return microerror.Mask(err)
 				}
@@ -85,7 +90,7 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 			if isJobCompleted(job) {
 				fmt.Printf("Job %s was completed.\n", job.Name)
 
-				err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(job.Name, &apismetav1.DeleteOptions{})
+				err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(job.Name, delOptions)
 				if err != nil {
 					return microerror.Mask(err)
 				}
