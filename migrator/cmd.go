@@ -72,6 +72,10 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 			if isDeadlineExceeded(job) {
 				fmt.Printf("Job %s has status failed due deadline exceeded, recreating job.\n", job.Name)
 
+				err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(job.Name, &apismetav1.DeleteOptions{})
+				if err != nil {
+					return microerror.Mask(err)
+				}
 				_, err = m.k8sClient.BatchV1().Jobs(runCommandNamespace).Create(job)
 				if err != nil {
 					return microerror.Mask(err)
