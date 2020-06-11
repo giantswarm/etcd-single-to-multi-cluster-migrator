@@ -24,7 +24,7 @@ const (
 
 	nsenterCommand = "nsenter -t 1 -m -u -n -i -- "
 
-	waitJobCompleted = time.Second * 2
+	waitJobCompleted = time.Second * 5
 )
 
 // runCommandsOnNode will execute command list on the specified node in the host namespace.
@@ -69,6 +69,15 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 				return microerror.Mask(err)
 			}
 
+			if isDeadlineExceeded(job) {
+				fmt.Printf("Job %s has status failed due deadline exceeded, recreating job.\n", job.Name)
+
+				_, err = m.k8sClient.BatchV1().Jobs(runCommandNamespace).Create(job)
+				if err != nil {
+					return microerror.Mask(err)
+				}
+			}
+
 			if isJobCompleted(job) {
 				fmt.Printf("Job %s was completed.\n", job.Name)
 
@@ -93,10 +102,19 @@ func isJobCompleted(j *batchapiv1.Job) bool {
 	return false
 }
 
+func isDeadlineExceeded(j *batchapiv1.Job) bool {
+	for _, c := range j.Status.Conditions {
+		if c.Type == "Failed" && c.Reason == "DeadlineExceeded" {
+			return true
+		}
+	}
+	return false
+}
+
 // buildCommandJob return job that will execute commands on a node in host namespace.
 // The executed file is taken from configmap which is mounted to the pod.
 func buildCommandJob(nodeName string, dockerRegistry string) *batchapiv1.Job {
-	activeDeadlineSeconds := int64(120)
+	activeDeadlineSeconds := int64(240)
 	backOffLimit := int32(10)
 	completions := int32(1)
 	privileged := true
