@@ -60,6 +60,8 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 			return microerror.Mask(err)
 		}
 
+		// deletePropagationPolicy ensures that all child resources are deleted as well before deleting the resource
+		// this ensures that the pods if the job are deleted in case the job was successful
 		deletePropagationPolicy := apismetav1.DeletePropagationForeground
 		delOptions := &apismetav1.DeleteOptions{
 			PropagationPolicy: &deletePropagationPolicy,
