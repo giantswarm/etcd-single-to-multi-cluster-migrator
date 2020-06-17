@@ -5,7 +5,7 @@ var (
 	gitSHA             = "n/a"
 	name        string = "etcd-cluster-migrator"
 	source      string = "https://github.com/giantswarm/etcd-cluster-migrator"
-	version            = "n/a"
+	version            = "v1.0.2"
 )
 
 func Description() string {
