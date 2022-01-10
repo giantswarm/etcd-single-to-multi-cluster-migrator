@@ -1,6 +1,7 @@
 package migrator
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -28,19 +29,19 @@ const (
 )
 
 // runCommandsOnNode will execute command list on the specified node in the host namespace.
-func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
+func (m *Migrator) runCommandsOnNode(ctx context.Context, nodeName string, commands []string) error {
 	// configmap for the job where commands will be stored in a single bash file
 	{
 		cm := buildConfigMapFile(commands)
 		// ensure there is no configmap present
-		err := m.k8sClient.CoreV1().ConfigMaps(runCommandNamespace).Delete(cm.Name, &apismetav1.DeleteOptions{})
+		err := m.k8sClient.CoreV1().ConfigMaps(runCommandNamespace).Delete(ctx, cm.Name, apismetav1.DeleteOptions{})
 		if k8serrors.IsNotFound(err) {
 			// It is fine as its is just safe check before creating.
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
-		_, err = m.k8sClient.CoreV1().ConfigMaps(runCommandNamespace).Create(cm)
+		_, err = m.k8sClient.CoreV1().ConfigMaps(runCommandNamespace).Create(ctx, cm, apismetav1.CreateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -48,14 +49,14 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 	// run command on the node
 	{
 		job := buildCommandJob(nodeName, m.dockerRegistry)
-		err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(job.Name, &apismetav1.DeleteOptions{})
+		err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(ctx, job.Name, apismetav1.DeleteOptions{})
 		if k8serrors.IsNotFound(err) {
 			// It is fine as its is just safe check before creating.
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
-		job, err = m.k8sClient.BatchV1().Jobs(runCommandNamespace).Create(job)
+		job, err = m.k8sClient.BatchV1().Jobs(runCommandNamespace).Create(ctx, job, apismetav1.CreateOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -63,7 +64,7 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 		// deletePropagationPolicy ensures that all child resources are deleted as well before deleting the resource
 		// this ensures that the pods if the job are deleted in case the job was successful
 		deletePropagationPolicy := apismetav1.DeletePropagationForeground
-		delOptions := &apismetav1.DeleteOptions{
+		delOptions := apismetav1.DeleteOptions{
 			PropagationPolicy: &deletePropagationPolicy,
 		}
 
@@ -71,7 +72,7 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 			fmt.Printf("Waiting for job %s to be completed\n", job.Name)
 			time.Sleep(waitJobCompleted)
 
-			job, err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Get(job.Name, apismetav1.GetOptions{})
+			job, err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Get(ctx, job.Name, apismetav1.GetOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -79,11 +80,11 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 			if isDeadlineExceeded(job) {
 				fmt.Printf("Job %s has status failed due deadline exceeded, recreating job.\n", job.Name)
 
-				err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(job.Name, delOptions)
+				err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(ctx, job.Name, delOptions)
 				if err != nil {
 					return microerror.Mask(err)
 				}
-				_, err = m.k8sClient.BatchV1().Jobs(runCommandNamespace).Create(job)
+				_, err = m.k8sClient.BatchV1().Jobs(runCommandNamespace).Create(ctx, job, apismetav1.CreateOptions{})
 				if err != nil {
 					return microerror.Mask(err)
 				}
@@ -92,7 +93,7 @@ func (m *Migrator) runCommandsOnNode(nodeName string, commands []string) error {
 			if isJobCompleted(job) {
 				fmt.Printf("Job %s was completed.\n", job.Name)
 
-				err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(job.Name, delOptions)
+				err := m.k8sClient.BatchV1().Jobs(runCommandNamespace).Delete(ctx, job.Name, delOptions)
 				if err != nil {
 					return microerror.Mask(err)
 				}
