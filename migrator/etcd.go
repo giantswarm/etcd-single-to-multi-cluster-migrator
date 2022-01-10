@@ -35,6 +35,7 @@ func createEtcdClient(caFile string, certFile string, keyFile string, endpoint s
 			ClientCAs:          etcdCaCert,
 			RootCAs:            etcdCaCert,
 			InsecureSkipVerify: false,
+			MinVersion:         tls.VersionTLS12,
 		},
 	}
 
