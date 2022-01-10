@@ -1,6 +1,5 @@
 apiVersion: v1
 name: etcd-cluster-migrator
-namespace: kube-system
 appVersion: [[ .AppVersion ]]
 version: [[ .Version ]]
 description: Migrate etcd cluster to 3 node cluster.
