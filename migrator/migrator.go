@@ -7,8 +7,8 @@ import (
 
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microerror"
-	etcdclientv3 "go.etcd.io/etcd/clientv3"
-	etcdserver "go.etcd.io/etcd/etcdserver/etcdserverpb"
+	etcdserver "go.etcd.io/etcd/api/v3/etcdserverpb"
+	etcdclientv3 "go.etcd.io/etcd/client/v3"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -94,7 +94,7 @@ func (m *Migrator) Run() error {
 	ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Second*20)
 	defer cancel()
 
-	nodeNames, err := getMasterNodes(m.k8sClient, m.masterNodeLabel)
+	nodeNames, err := getMasterNodes(ctx, m.k8sClient, m.masterNodeLabel)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -193,7 +193,7 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 
 		fmt.Printf("Configuring node %s for etcd cluster.\n", nodeName)
 		// execute commands above on the node via k8s job
-		err := m.runCommandsOnNode(nodeName, commands)
+		err := m.runCommandsOnNode(ctx, nodeName, commands)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -211,7 +211,7 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 	}
 
 	// wait until k8s api is available again, as etcd data sync will make API unavailable for short time
-	err := waitForApiAvailable(m.k8sClient)
+	err := waitForApiAvailable(ctx, m.k8sClient)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -221,12 +221,12 @@ func (m *Migrator) addNodeToEtcdCluster(ctx context.Context, nodeNames []string,
 	return nil
 }
 
-func getMasterNodes(c kubernetes.Interface, labelSelector string) ([]string, error) {
+func getMasterNodes(ctx context.Context, c kubernetes.Interface, labelSelector string) ([]string, error) {
 	var nodeNames []string
 
 	b := backoff.NewMaxRetries(maxRetriesNodes, masterNodeFetchInterval)
 	o := func() error {
-		nodeList, err := c.CoreV1().Nodes().List(metav1.ListOptions{LabelSelector: labelSelector})
+		nodeList, err := c.CoreV1().Nodes().List(ctx, metav1.ListOptions{LabelSelector: labelSelector})
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -248,13 +248,13 @@ func getMasterNodes(c kubernetes.Interface, labelSelector string) ([]string, err
 }
 
 // waitForApiAvailable wait until k8s api is available which indicates that etcd cluster is synced with the new member.
-func waitForApiAvailable(c kubernetes.Interface) error {
+func waitForApiAvailable(ctx context.Context, c kubernetes.Interface) error {
 	fmt.Printf("Waiting for the etcd data sync.\n")
 	time.Sleep(waitApiStartInterval)
 
 	b := backoff.NewMaxRetries(maxRetriesApi, waitApiRetryInterval)
 	o := func() error {
-		_, err := c.CoreV1().Nodes().List(metav1.ListOptions{})
+		_, err := c.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
 		if err != nil {
 			fmt.Printf("API is still down. retrying in %.2f.\n", waitApiRetryInterval.Seconds())
 			return microerror.Mask(err)

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/giantswarm/microerror"
-	etcdclientv3 "go.etcd.io/etcd/clientv3"
+	etcdclientv3 "go.etcd.io/etcd/client/v3"
 )
 
 const (
