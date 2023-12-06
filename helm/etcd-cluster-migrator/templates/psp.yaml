@@ -1,3 +1,4 @@
+{{- if not .Values.global.podSecurityStandards.enforced }}
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
@@ -34,3 +35,4 @@ spec:
       - min: 0
         max: 0
   readOnlyRootFilesystem: false
+{{- end }}
