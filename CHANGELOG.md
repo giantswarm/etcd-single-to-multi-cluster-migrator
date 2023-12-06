@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Migrate PSP to PSS
+
 ## [1.1.0] - 2022-01-10
 
 [Unreleased]: https://github.com/giantswarm/etcd-cluster-migrator/compare/v1.1.0...HEAD

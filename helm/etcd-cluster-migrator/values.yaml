@@ -22,3 +22,7 @@ image:
   tag: "[[ .Version ]]"
   pullPolicy: IfNotPresent
   registry: quay.io
+
+global:
+  podSecurityStandards:
+    enforced: false
