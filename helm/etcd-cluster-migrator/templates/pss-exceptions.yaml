@@ -1,8 +1,8 @@
 apiVersion: kyverno.io/v2alpha1
 kind: PolicyException
 metadata:
-  name: {{ include "resource.default.name" . }}-exceptions
-  namespace: {{ include "resource.default.namespace" . }}
+  name: {{ .Values.name }}-exceptions
+  namespace: {{ .Release.Namespace }}
 spec:
   exceptions:
   - policyName: disallow-host-path
@@ -16,6 +16,6 @@ spec:
         - Job
         - Pod
         namespaces:
-        - {{ include "resource.default.namespace" . }}
+        - {{ .Release.Namespace }}
         names:
         - {{ .Chart.Name }}*
