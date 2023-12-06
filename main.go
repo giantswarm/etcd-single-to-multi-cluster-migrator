@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/giantswarm/microerror"
 	flag "github.com/spf13/pflag"
@@ -76,6 +77,8 @@ func mainError() error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
+
+	time.Sleep(time.Hour)
 
 	return nil
 }
