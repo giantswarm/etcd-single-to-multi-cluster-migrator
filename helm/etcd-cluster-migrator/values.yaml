@@ -25,4 +25,4 @@ image:
 
 global:
   podSecurityStandards:
-    enforced: false
+    enforced: true
