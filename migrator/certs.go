@@ -2,7 +2,7 @@ package migrator
 
 import (
 	"crypto/x509"
-	"io/ioutil"
+	"os"
 
 	"github.com/giantswarm/microerror"
 )
@@ -12,7 +12,7 @@ import (
 // Returns an error if the file could not be read, a certificate could not
 // be parsed, or if the file does not contain any certificates
 func CertPoolFromFile(filename string) (*x509.CertPool, error) {
-	b, err := ioutil.ReadFile(filename)
+	b, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
