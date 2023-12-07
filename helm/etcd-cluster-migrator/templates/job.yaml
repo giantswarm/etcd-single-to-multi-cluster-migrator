@@ -8,6 +8,10 @@ metadata:
     giantswarm.io/service-type: "managed"
     giantswarm.io/managed-by: "aws-operator"
     app.kubernetes.io/name: {{ .Values.name }}
+  annotations:
+    "helm.sh/hook": "post-install,post-upgrade"
+    "helm.sh/hook-weight": "-1"
+    "helm.sh/hook-delete-policy": hook-succeeded
 spec:
   backoffLimit: 50
   template:
